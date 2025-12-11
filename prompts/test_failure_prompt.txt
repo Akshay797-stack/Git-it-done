@@ -1,0 +1,6 @@
+The fix failed the tests.
+Error Output:
+{{ERROR_OUTPUT}}
+
+Please provide an updated diff to fix the error.
+Output ONLY the diff inside a ```diff code block.

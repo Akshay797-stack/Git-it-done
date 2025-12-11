@@ -1,0 +1,26 @@
+You are an expert software engineer.
+Issue: {{ISSUE_BODY}}
+
+Codebase:
+{{CODEBASE}}
+
+Please analyze the issue and the codebase.
+You must fix the issue by rewriting the ENTIRE content of the file(s) that need changes.
+Do not generate a diff. Generate the FULL FILE content.
+
+IMPORTANT: Output the FULL CONTENT of the modified file(s).
+IMPORTANT: Do not output files that have not changed.
+IMPORTANT: If you are fixing multiple issues, combine them into the final file content. Do not output the same file multiple times.
+Output format:
+For each changed file, output:
+File: <path/to/file>
+```<language>
+<full_content_of_file>
+```
+
+Example:
+File: src/index.js
+```javascript
+const a = 1;
+// ... full content ...
+```

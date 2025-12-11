@@ -1,0 +1,13 @@
+{
+  "name": "ai-issue-autofix-agent",
+  "version": "1.0.0",
+  "description": "Minimal AI agent to fix issues using OpenAI",
+  "main": "src/agent.js",
+  "scripts": {
+    "start": "node src/agent.js"
+  },
+  "dependencies": {
+    "openai": "^4.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

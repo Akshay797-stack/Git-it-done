@@ -1,331 +1,185 @@
-# 🤖 AI Issue Autofix MVP
+# 🤖 AutoFix AI - Automated GitHub Issue Resolution
 
-An intelligent, automated system that uses AI to analyze GitHub issues, generate fixes, apply patches, run tests, and create pull requests—all orchestrated through Kestra workflows.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![Kestra](https://img.shields.io/badge/Kestra-Latest-blue)](https://kestra.io/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-## 🌟 Features
+**AutoFix AI** is an intelligent, automated platform that fixes GitHub issues using AI. Select an issue, let our AI agents analyze the codebase, generate a fix, and automatically create a Pull Request for you—all in minutes!
 
-- **AI-Powered Analysis**: Uses OpenAI, OpenRouter, or Cerebras to understand issues and generate fixes
-- **Automated Workflow**: Kestra orchestration for reliable, scalable execution
-- **Smart Patching**: Generates and applies patches with multiple fallback strategies
-- **Test Generation**: Automatically creates test files if they don't exist
-- **Pull Request Creation**: Automatically creates PRs with detailed descriptions
-- **Multi-Provider Support**: Works with OpenAI, OpenRouter (Gemini), and Cerebras
-- **Docker Integration**: Containerized execution for consistency
-- **Future-Ready**: API-first design for easy UI integration
+![AutoFix AI Demo](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=AutoFix+AI+Demo)
 
-## 🏗️ Architecture
+## ✨ **Key Features**
 
-### Components
+- 🔐 **Secure GitHub Integration** - Authenticate safely via GitHub OAuth.
+- 🤖 **AI-Powered Code Fixes** - Advanced agents analyze, debug, and patch code.
+- 📊 **Real-time Live Logs** - Watch the AI think and work with a terminal-style interface.
+- 🎯 **Visual Progress Tracking** - Animated 10-step progress bar from analysis to PR.
+- 🔄 **Automated Pull Requests** - The workflow creates ready-to-merge PRs automatically.
+- 🎨 **Modern Dark Mode UI** - A premium, hackathon-ready interface built with Tailwind CSS.
+- ⚡ **Kestra Orchestration** - Resilient, scalable workflow management powered by Kestra.
 
-1. **Kestra Workflows** (`kestra/workflows/`)
-   - Orchestrates the entire autofix process
-   - Provides REST API for external integrations
-   - Handles scheduling and batch processing
+## 🚀 **Quick Start Guide**
 
-2. **Orchestrator** (`src/orchestrator.js`)
-   - Node.js script that manages the fix workflow
-   - Clones repositories, creates branches
-   - Coordinates agent execution and patch application
+Follow these steps to get the project running locally in under 10 minutes.
 
-3. **AI Agent** (`src/agent.js`)
-   - Interacts with LLM APIs
-   - Generates full file content based on issues
-   - Creates git-compatible patches
+### **Prerequisites**
 
-4. **Prompts** (`prompts/`)
-   - `fix_prompt.txt`: Instructions for generating fixes
-   - `test_failure_prompt.txt`: Instructions for fixing test failures
-   - `pr_body_template.txt`: Template for PR descriptions
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Docker Desktop
-- Node.js 18+ (for local development)
-- GitHub Personal Access Token with `repo` permissions
-- OpenAI/OpenRouter/Cerebras API key
-
-### 1. Clone and Setup
-
-```bash
-git clone <your-repo-url>
-cd ai-issue-autofix-mvp
-npm install
-```
-
-### 2. Configure Environment
-
-Create a `.env` file:
-
-```bash
-OPENAI_API_KEY=sk-or-v1-...  # OpenRouter key
-# OR
-OPENAI_API_KEY=sk-...         # OpenAI key
-# OR
-OPENAI_API_KEY=csk-...        # Cerebras key
-
-GITHUB_TOKEN=github_pat_...   # GitHub PAT with repo access
-```
-
-### 3. Start Kestra
-
-```bash
-# Build custom Kestra image with Node.js
-docker-compose -f docker-compose.kestra.yml build
-
-# Start Kestra and PostgreSQL
-docker-compose -f docker-compose.kestra.yml up -d
-
-# Check logs
-docker-compose -f docker-compose.kestra.yml logs -f kestra
-```
-
-### 4. Access Kestra UI
-
-Open: **http://localhost:8080**
-
-### 5. Upload Workflow
-
-1. Go to **Flows** → **+ Create**
-2. Copy content from `kestra/workflows/ai-issue-autofix.yml`
-3. Paste and click **Save**
-
-### 6. Execute Workflow
-
-1. Click **Execute**
-2. Fill in inputs:
-   ```
-   issue_url: https://github.com/owner/repo/issues/123
-   repo_url: https://github.com/owner/repo.git
-   openai_api_key: <your-api-key>
-   github_token: <your-github-token>
-   apply_fix: true
-   create_pr: true
-   ```
-3. Click **Execute**
-4. Watch the logs!
-
-## 📖 Usage
-
-### Via Kestra UI
-
-1. Navigate to your workflow
-2. Click **Execute**
-3. Provide required inputs
-4. Monitor execution in real-time
-
-### Via Kestra API
-
-```bash
-curl -X POST http://localhost:8080/api/v1/executions/dev.autofix/ai-issue-autofix \
-  -H "Content-Type: application/json" \
-  -d '{
-    "inputs": {
-      "issue_url": "https://github.com/owner/repo/issues/123",
-      "repo_url": "https://github.com/owner/repo.git",
-      "openai_api_key": "sk-...",
-      "github_token": "github_pat_...",
-      "apply_fix": true,
-      "create_pr": true
-    }
-  }'
-```
-
-### Via CLI (Direct)
-
-```bash
-./run_with_cline.sh --issue <issue-url> --repo <repo-url> --push
-```
-
-## 🔧 Configuration
-
-### Workflow Modes
-
-1. **Dry Run** (default)
-   ```
-   apply_fix: false
-   create_pr: false
-   ```
-   - Only generates the patch
-   - No changes applied
-
-2. **Apply Only**
-   ```
-   apply_fix: true
-   create_pr: false
-   ```
-   - Generates and applies patch
-   - No PR created
-
-3. **Full Auto**
-   ```
-   apply_fix: true
-   create_pr: true
-   ```
-   - Generates, applies, and creates PR
-   - Complete automation
-
-### LLM Providers
-
-The system automatically detects the provider based on API key prefix:
-
-- **OpenRouter**: `sk-or-v1-...` → Uses `google/gemini-2.0-flash-exp:free`
-- **Cerebras**: `csk-...` → Uses `llama3.1-8b`
-- **OpenAI**: `sk-...` → Uses `gpt-4o`
-
-## 📁 Project Structure
-
-```
-ai-issue-autofix-mvp/
-├── src/
-│   ├── orchestrator.js       # Main workflow orchestrator
-│   └── agent.js               # AI agent for fix generation
-├── kestra/
-│   └── workflows/
-│       ├── ai-issue-autofix.yml      # Single issue workflow
-│       └── batch-issue-autofix.yml   # Batch processing workflow
-├── docker/
-│   ├── cline-agent/           # Docker image for agent
-│   └── kestra/                # Custom Kestra image with Node.js
-├── prompts/
-│   ├── fix_prompt.txt         # AI instructions for fixes
-│   ├── test_failure_prompt.txt
-│   └── pr_body_template.txt
-├── docker-compose.kestra.yml  # Kestra setup
-├── run_with_cline.sh          # CLI wrapper
-└── package.json               # Node.js dependencies
-```
-
-## 🎯 Workflow Process
-
-1. **Fetch Issue**: Retrieves issue details from GitHub API
-2. **Clone Repository**: Clones the target repository
-3. **Create Branch**: Creates a new branch for the fix
-4. **AI Analysis**: Sends codebase + issue to LLM
-5. **Generate Fix**: LLM outputs complete fixed files
-6. **Create Patch**: Generates git diff from changes
-7. **Apply Patch**: Applies patch with fallback strategies
-8. **Run Tests**: Executes tests if available
-9. **Commit Changes**: Creates a commit with the fix
-10. **Push & PR**: Pushes branch and creates pull request
-
-## 🔌 API Integration (For Future UI)
-
-### Trigger Workflow
-
-```javascript
-const response = await fetch('http://localhost:8080/api/v1/executions/dev.autofix/ai-issue-autofix', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    inputs: {
-      issue_url: issueUrl,
-      repo_url: repoUrl,
-      openai_api_key: apiKey,
-      github_token: token,
-      apply_fix: true,
-      create_pr: true
-    }
-  })
-});
-
-const { id } = await response.json();
-```
-
-### Check Status
-
-```javascript
-const status = await fetch(`http://localhost:8080/api/v1/executions/${id}`);
-const execution = await status.json();
-console.log(execution.state.current); // SUCCESS, RUNNING, FAILED
-```
-
-### Download Patch
-
-```javascript
-const patch = await fetch(`http://localhost:8080/api/v1/executions/${id}/file?path=patch.diff`);
-const patchContent = await patch.text();
-```
-
-## 🐛 Troubleshooting
-
-### Kestra Won't Start
-
-```bash
-# Check logs
-docker-compose -f docker-compose.kestra.yml logs kestra
-
-# Restart
-docker-compose -f docker-compose.kestra.yml restart
-```
-
-### Workflow Fails
-
-1. Check execution logs in Kestra UI
-2. Verify API keys are correct
-3. Ensure GitHub token has `repo` permissions
-4. Check if repository is accessible
-
-### Git Push Fails
-
-- Verify GitHub token has write permissions
-- Check if token is expired
-- Ensure repository exists and you have access
-
-### Tests Fail
-
-- The AI generates tests based on the project type
-- Tests use Node.js `assert` module by default
-- Test failures don't stop the workflow
-
-## 📚 Documentation
-
-- **[KESTRA_GUIDE.md](KESTRA_GUIDE.md)**: Detailed Kestra integration guide
-- **[KESTRA_SETUP.md](KESTRA_SETUP.md)**: Step-by-step setup instructions
-- **[run-local.md](run-local.md)**: Local testing guide
-
-## 🛣️ Roadmap
-
-### Current (MVP)
-- ✅ AI-powered fix generation
-- ✅ Kestra orchestration
-- ✅ Automated PR creation
-- ✅ Multi-provider LLM support
-
-### Planned
-- 🔄 Web UI dashboard
-- 🔄 Multi-repository support
-- 🔄 Iterative fix refinement
-- 🔄 Advanced metrics and analytics
-- 🔄 Slack/Discord notifications
-- 🔄 Multi-language support (Python, Java, Go)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 🙏 Acknowledgments
-
-- Kestra for workflow orchestration
-- OpenAI, OpenRouter, and Cerebras for LLM APIs
-- GitHub for the platform and API
-
-## 📞 Support
-
-For issues and questions:
-- Open a GitHub issue
-- Check the documentation
-- Review Kestra logs
+- **Node.js 18+** & **npm**
+- **Docker** & **Docker Compose** (must be running)
+- **GitHub Account**
+- **OpenAI API Key** (or OpenRouter/Cerebras key)
 
 ---
 
-**Built with ❤️ for automated software maintenance**
+### **1. Clone the Repository**
+
+```bash
+git clone https://github.com/JS-Aakash/AutoFix-AI.git
+cd AutoFix-AI
+```
+
+---
+
+### **2. Environment Configuration**
+
+#### **Root `.env`**
+Create a `.env` file in the root directory for the backend/Kestra:
+```env
+# Required for the AI Agent
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+#### **Frontend `.env.local`**
+Create a `frontend/.env.local` file for the Next.js app:
+```env
+# GitHub OAuth (See Step 3)
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# NextAuth Configuration
+NEXTAUTH_SECRET=any_random_string_xyz
+NEXTAUTH_URL=http://localhost:3000
+
+# Kestra Integration
+KESTRA_URL=http://localhost:8080
+KESTRA_EMAIL=admin@example.com
+KESTRA_PASSWORD=password123
+
+# AI Agent Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+---
+
+### **3. Setup GitHub OAuth**
+
+1. Go to **[GitHub Developer Settings](https://github.com/settings/developers)**.
+2. Click **"New OAuth App"**.
+3. Fill in the following details:
+   - **Application Name**: `AutoFix AI`
+   - **Homepage URL**: `http://localhost:3000`
+   - **Authorization Callback URL**: `http://localhost:3000/api/auth/callback/github`
+4. Register application.
+5. Copy the **Client ID** and generate a new **Client Secret**.
+6. Paste them into your `frontend/.env.local` file.
+
+---
+
+### **4. Start Kestra Orchestrator**
+
+Launch the Kestra server and database using Docker Compose:
+
+```bash
+docker-compose -f docker-compose.kestra.yml up -d
+```
+
+Wait ~30 seconds for the containers to initialize.
+
+**Configure Kestra:**
+1. Open [http://localhost:8080](http://localhost:8080).
+2. Create an Admin account when prompted (use checking credentials from your `.env.local`).
+3. Navigate to **Flows** -> **Create**.
+4. Copy the entire content of `kestra/workflows/ai-issue-autofix.yml`.
+5. Paste it into the editor and click **Save**.
+
+---
+
+### **5. Run the Frontend**
+
+Naviage to the frontend directory and start the dev server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+### **6. 🎉 Access the Application**
+
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
+**How to Use:**
+1. **Sign In** with your GitHub account.
+2. **Select a Repository** from the left panel.
+3. **Select an Issue** from the right panel.
+4. Click the **"Auto-Fix Issue with AI"** button.
+5. Watch the **Live Logs** and **Progress Bar** as the AI clones, fixes, and pushes code!
+
+---
+
+## 🏗️ **Architecture Overview**
+
+```mermaid
+graph LR
+A[Next.js Frontend] -- Trigger Workflow --> B[Kestra Orchestrator]
+B -- Clone & Analyze --> C[AI Agent Container]
+C -- API Call --> D[OpenAI / LLM]
+C -- Commit & Push --> E[GitHub Repository]
+A -- SSE Stream --> B
+```
+
+- **Frontend**: Next.js 16 app acting as the control plane.
+- **Proxy Layer**: Next.js API Routes (`/api/kestra-proxy`) secure API keys.
+- **Orchestrator**: Kestra manages the lifecycle (Container -> Script -> Notification).
+- **Agent**: Node.js scripts (`src/orchestrator.js`) that handle git operations and AI logic.
+
+---
+
+## 🔧 **Troubleshooting**
+
+**Q: Logs are stuck at "Initializing..."?**
+- Ensure Kestra is running (`docker-compose ps`).
+- Check if you created the Flow in Kestra with the ID `ai-issue-autofix`.
+
+**Q: "401 Unauthorized" in logs?**
+- Verify `KESTRA_EMAIL` and `KESTRA_PASSWORD` in `frontend/.env.local` match your Kestra account.
+
+**Q: "GitHub API Rate Limit"?**
+- This generally shouldn't happen with OAuth, but ensure your token scopes are valid.
+
+---
+
+## 🧪 **Testing Locally (Without Kestra)**
+
+You can run the AI agent directly via CLI to test fixes:
+
+```bash
+# From root directory
+node src/orchestrator.js \
+  --issue https://github.com/owner/repo/issues/1 \
+  --repo https://github.com/owner/repo.git \
+  --dry-run
+```
+
+---
+
+## 🤝 **Contributing**
+
+Contributions, issues, and feature requests are welcome!
+Feel free to check the [issues page](https://github.com/JS-Aakash/AutoFix-AI/issues).
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -146,11 +146,10 @@ async function main() {
     // Configure Git to use token for authentication
     console.log('🔐 Configuring Git authentication...');
 
-    // Debug: Check if token is available
-    const tokenPresent = process.env.GITHUB_TOKEN ? 'YES' : 'NO';
-    const tokenLength = process.env.GITHUB_TOKEN ? process.env.GITHUB_TOKEN.length : 0;
-    const tokenPrefix = process.env.GITHUB_TOKEN ? process.env.GITHUB_TOKEN.substring(0, 7) : 'NONE';
-    console.log(`Token present: ${tokenPresent}, Length: ${tokenLength}, Prefix: ${tokenPrefix}...`);
+    // const tokenPresent = process.env.GITHUB_TOKEN ? 'YES' : 'NO';
+    // const tokenLength = process.env.GITHUB_TOKEN ? process.env.GITHUB_TOKEN.length : 0;
+    // const tokenPrefix = process.env.GITHUB_TOKEN ? process.env.GITHUB_TOKEN.substring(0, 7) : 'NONE';
+    // console.log(`Token present: ${tokenPresent}, Length: ${tokenLength}, Prefix: ${tokenPrefix}...`);
 
     // Extract repo owner and name from URL
     const repoMatch = REPO_URL.match(/github\.com\/(.+?)\/(.+?)(\.git)?$/);
@@ -306,7 +305,7 @@ async function main() {
 
                         const refinedPrompt = testFailurePrompt
                             .replace('{{TEST_OUTPUT}}', testOutput)
-                            .replace('{{ISSUE_BODY}}', issueBody)
+                            .replace('{{ISSUE_BODY}}', issue.body)
                             .replace('{{CODEBASE}}', readRepo(WORKSPACE_DIR).map(f =>
                                 `File: ${f.path}\nContent:\n${f.content}\n`
                             ).join('\n---\n'));

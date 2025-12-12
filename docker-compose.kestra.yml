@@ -15,8 +15,26 @@ services:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       # Docker configuration for Windows
       DOCKER_HOST: npipe:////./pipe/docker_engine
-      # Kestra Configuration
+      # Kestra Configuration - Minimal, no auth for development
       KESTRA_CONFIGURATION: |
+        micronaut:
+          server:
+            cors:
+              enabled: true
+              configurations:
+                web:
+                  allowedOrigins:
+                    - http://localhost:3000
+                  allowedMethods:
+                    - GET
+                    - POST
+                    - PUT
+                    - DELETE
+                    - OPTIONS
+                  allowedHeaders:
+                    - Content-Type
+                    - Authorization
+                  allowCredentials: true
         datasources:
           postgres:
             url: jdbc:postgresql://postgres:5432/kestra
@@ -24,9 +42,6 @@ services:
             username: kestra
             password: kestra
         kestra:
-          server:
-            basic-auth:
-              enabled: false
           repository:
             type: postgres
           queue:

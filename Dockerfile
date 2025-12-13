@@ -23,49 +23,54 @@ COPY src ./src
 COPY prompts ./prompts
 COPY kestra/workflows ./workflows
 
-# Create storage directory
-RUN mkdir -p /app/storage && chown -R kestra:kestra /app/storage
-RUN chown -R kestra:kestra /app/ai-autofix
+# Create Kestra configuration file for Railway (as root before switching users)
+RUN cat <<EOF > /app/application.yml
+datasources:
+  postgres:
+    url: jdbc:h2:mem:public;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+kestra:
+  repository:
+    type: memory
+  queue:
+    type: memory
+  storage:
+    type: local
+    local:
+      base-path: /app/storage
+micronaut:
+  server:
+    port: 8080
+    cors:
+      enabled: true
+      configurations:
+        web:
+          allowedOrigins:
+            - "*"
+          allowedMethods:
+            - HEAD
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowedHeaders:
+            - Content-Type
+            - Authorization
+          allowCredentials: true
+EOF
+
+# Create storage directory and set permissions
+RUN mkdir -p /app/storage && \
+    chown -R kestra:kestra /app/storage && \
+    chown -R kestra:kestra /app/ai-autofix && \
+    chown kestra:kestra /app/application.yml
 
 # Switch back to kestra user
 USER kestra
 
-# Set environment variables for Railway
-ENV KESTRA_CONFIGURATION="\
-    datasources:\n\
-    postgres:\n\
-    url: jdbc:h2:mem:public;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE\n\
-    driverClassName: org.h2.Driver\n\
-    kestra:\n\
-    repository:\n\
-    type: memory\n\
-    queue:\n\
-    type: memory\n\
-    storage:\n\
-    type: local\n\
-    local:\n\
-    base-path: /app/storage\n\
-    micronaut:\n\
-    server:\n\
-    port: ${PORT:-8080}\n\
-    cors:\n\
-    enabled: true\n\
-    configurations:\n\
-    web:\n\
-    allowedOrigins:\n\
-    - '*'\n\
-    allowedMethods:\n\
-    - HEAD\n\
-    - GET\n\
-    - POST\n\
-    - PUT\n\
-    - DELETE\n\
-    - OPTIONS\n\
-    allowedHeaders:\n\
-    - Content-Type\n\
-    - Authorization\n\
-    allowCredentials: true\n\
-    "
+# Set the config file location
+ENV MICRONAUT_CONFIG_FILES=/app/application.yml
 
 # Expose port
 EXPOSE 8080
@@ -73,4 +78,3 @@ EXPOSE 8080
 # Override the base image's CMD (which is ["--help"])
 # The ENTRYPOINT is docker-entrypoint.sh which calls /app/kestra
 CMD ["server", "standalone"]
-

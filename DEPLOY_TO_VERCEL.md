@@ -22,6 +22,8 @@ git push origin main
         *   `GITHUB_CLIENT_SECRET`: Your GitHub OAuth Secret.
         *   `NEXTAUTH_URL`: Your Vercel domain (e.g., `https://your-app.vercel.app`).
         *   `NEXTAUTH_SECRET`: A random string (generate one with `openssl rand -base64 32`).
+        *   `KESTRA_EMAIL`: Your Kestra email (e.g., `jsaakash22@gmail.com`).
+        *   `KESTRA_PASSWORD`: Your Kestra password.
         *   `KESTRA_URL`: *We will set this in Step 3*.
 
 5.  Click **Deploy**.

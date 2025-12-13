@@ -25,13 +25,20 @@ export async function POST(req: Request) {
         // Create Basic Auth header
         const kestraUser = process.env.KESTRA_EMAIL || "";
         const kestraPass = process.env.KESTRA_PASSWORD || "";
+
+        console.log("Debug Auth Env:", {
+            existsId: !!kestraUser,
+            idLen: kestraUser.length,
+            existsSecret: !!kestraPass,
+            nodeEnv: process.env.NODE_ENV
+        });
+
         const authHeader = 'Basic ' + Buffer.from(kestraUser + ':' + kestraPass).toString('base64');
 
         const kestraResponse = await fetch(kestraUrl, {
             method: 'POST',
             headers: {
                 'Authorization': authHeader
-                // Removed 'Cookie': cookies - we shouldn't pass Next.js cookies to Kestra
             },
             body: formData
         });
@@ -40,9 +47,11 @@ export async function POST(req: Request) {
 
         if (!kestraResponse.ok) {
             const errorText = await kestraResponse.text();
-            console.error("Kestra error:", errorText);
+            console.error("Kestra error body:", errorText);
+            console.error("Kestra response headers:", Object.fromEntries(kestraResponse.headers.entries()));
+
             return NextResponse.json(
-                { error: `Kestra error: ${kestraResponse.status}` },
+                { error: `Kestra error: ${kestraResponse.status}`, details: errorText },
                 { status: kestraResponse.status }
             );
         }

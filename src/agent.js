@@ -7,11 +7,13 @@ require('dotenv').config();
 const apiKey = process.env.OPENAI_API_KEY;
 const isOpenRouter = apiKey && apiKey.startsWith('sk-or-');
 const isCerebras = apiKey && apiKey.startsWith('csk-');
+const isTogether = apiKey && (apiKey.startsWith('together_') || (!apiKey.startsWith('sk-') && !apiKey.startsWith('csk-')));
 
 const openai = new OpenAI({
     apiKey: apiKey,
     baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' :
-        isCerebras ? 'https://api.cerebras.ai/v1' : undefined,
+        isCerebras ? 'https://api.cerebras.ai/v1' :
+            isTogether ? 'https://api.together.xyz/v1' : undefined,
     defaultHeaders: isOpenRouter ? {
         'HTTP-Referer': 'https://github.com/cline/cline',
         'X-Title': 'Cline Agent'
@@ -54,7 +56,8 @@ async function main() {
             const completion = await openai.chat.completions.create({
                 messages: [{ role: 'user', content: prompt }],
                 model: isOpenRouter ? 'google/gemini-2.0-flash-exp:free' :
-                    isCerebras ? 'llama3.1-8b' : 'gpt-4o',
+                    isCerebras ? 'llama3.1-8b' :
+                        isTogether ? 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo' : 'gpt-4o',
                 response_format: { type: "json_object" },
                 max_tokens: 4000,
                 temperature: 0.3,

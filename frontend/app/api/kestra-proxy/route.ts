@@ -17,8 +17,8 @@ export async function POST(req: Request) {
         formData.append('issue_url', issueUrl);
         formData.append('repo_url', repoUrl);
         formData.append('github_token', githubToken);
-        // Use server-side env var first, fall back to client provided (if any)
-        formData.append('openai_api_key', process.env.OPENAI_API_KEY || openaiKey || '');
+        // Use client provided key first, fall back to server-side env var
+        formData.append('openai_api_key', openaiKey || process.env.OPENAI_API_KEY || '');
         formData.append('apply_fix', 'true');
         formData.append('create_pr', 'true');
 

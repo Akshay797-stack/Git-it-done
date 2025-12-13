@@ -12,6 +12,7 @@
 
 - 🔐 **Secure GitHub Integration** - Authenticate safely via GitHub OAuth.
 - 🤖 **AI-Powered Code Fixes** - Advanced agents analyze, debug, and patch code.
+- 🐰 **CodeRabbit Integration** - Automated 3rd-party code review for every PR.
 - 📊 **Real-time Live Logs** - Watch the AI think and work with a terminal-style interface.
 - 🎯 **Visual Progress Tracking** - Animated 10-step progress bar from analysis to PR.
 - 🔄 **Automated Pull Requests** - The workflow creates ready-to-merge PRs automatically.
@@ -27,7 +28,7 @@ Follow these steps to get the project running locally in under 10 minutes.
 - **Node.js 18+** & **npm**
 - **Docker** & **Docker Compose** (must be running)
 - **GitHub Account**
-- **OpenAI API Key** (or OpenRouter/Cerebras key)
+- **AI API Key** (OpenAI, OpenRouter, Cerebras, or Together AI)
 
 ---
 
@@ -43,10 +44,15 @@ cd AutoFix-AI
 ### **2. Environment Configuration**
 
 #### **Root `.env`**
-Create a `.env` file in the root directory for the backend/Kestra:
+Create a `.env` file in the root directory. The system **automatically detects** the provider based on your API key type:
+
 ```env
-# Required for the AI Agent
-OPENAI_API_KEY=your_openai_api_key_here
+# Supported Providers (Auto-Detected):
+# - OpenAI (sk-...) -> gpt-4o
+# - OpenRouter (sk-or-...) -> gemini-2.0-flash
+# - Cerebras (csk-...) -> llama3.1-8b
+# - Together AI (together_...) -> llama-3.1-70b
+OPENAI_API_KEY=your_api_key_here
 ```
 
 #### **Frontend `.env.local`**
@@ -126,6 +132,16 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 3. **Select an Issue** from the right panel.
 4. Click the **"Auto-Fix Issue with AI"** button.
 5. Watch the **Live Logs** and **Progress Bar** as the AI clones, fixes, and pushes code!
+
+---
+
+### **7. 🐰 Enable CodeRabbit Reviews (Hackathon Partner)**
+
+To get automated AI reviews on every PR:
+
+1. Go to **[CodeRabbit.ai](https://coderabbit.ai/)** and sign up.
+2. Install the **CodeRabbit GitHub App** on your repository.
+3. That's it! The AutoFix agent automatically adds `@coderabbitai review` to every PR it creates, ensuring you get an instant high-quality code review.
 
 ---
 

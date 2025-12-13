@@ -5,7 +5,7 @@ import { useState } from "react";
 import { RepoSelector } from "@/components/repo-selector";
 import { IssueList } from "@/components/issue-list";
 import { LiveLogs } from "@/components/live-logs";
-import { Github, LogOut, Sparkles, Zap, Code, GitBranch } from "lucide-react";
+import { Github, LogOut, Sparkles, Zap, Code, GitBranch, Rabbit } from "lucide-react";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -13,10 +13,16 @@ export default function Home() {
   const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [isFixing, setIsFixing] = useState(false);
+  const [customApiKey, setCustomApiKey] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const startFix = async () => {
+  const openFixDialog = () => {
     if (!selectedIssue || !selectedRepo) return;
+    setIsDialogOpen(true);
+  };
 
+  const confirmFix = async () => {
+    setIsDialogOpen(false);
     setIsFixing(true);
     try {
       const res = await fetch('/api/kestra-proxy', {
@@ -25,7 +31,8 @@ export default function Home() {
         body: JSON.stringify({
           issueUrl: selectedIssue.html_url,
           repoUrl: selectedRepo.html_url,
-          githubToken: (session as any)?.accessToken || ''
+          githubToken: (session as any)?.accessToken || '',
+          openaiKey: customApiKey
         })
       });
 
@@ -218,27 +225,98 @@ export default function Home() {
 
             {/* Action Button */}
             {selectedIssue && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={startFix}
-                  disabled={isFixing}
-                  className="group relative px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-bold text-white shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity"></div>
-                  <div className="relative flex items-center gap-3">
-                    {isFixing ? (
-                      <>
-                        <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-lg">Starting AI Fix...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-6 h-6" />
-                        <span className="text-lg">Auto-Fix Issue with AI</span>
-                      </>
-                    )}
+              <div className="mt-8">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  {/* CodeRabbit Integration */}
+                  <a
+                    href="https://github.com/apps/coderabbitai"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col items-center justify-center gap-1 px-8 py-4 bg-[#FF5700]/10 hover:bg-[#FF5700]/20 border border-[#FF5700]/30 rounded-xl transition-all h-[72px] min-w-[200px]"
+                  >
+                    <div className="flex items-center gap-2 text-[#FF5700]">
+                      <Rabbit className="w-5 h-5" />
+                      <span className="font-bold">Enable AI Reviews</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 group-hover:text-[#FF5700]/80">
+                      Partner Integration
+                    </span>
+                  </a>
+
+                  {/* Main Action Button */}
+                  <button
+                    onClick={openFixDialog}
+                    disabled={isFixing}
+                    className="group relative px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-bold text-white shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 h-[72px]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity"></div>
+                    <div className="relative flex items-center gap-3">
+                      {isFixing ? (
+                        <>
+                          <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-lg">Starting AI Fix...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-6 h-6" />
+                          <span className="text-lg">Auto-Fix Issue with AI</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Config Dialog */}
+            {isDialogOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="w-full max-w-lg bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">Start AI Autofix</h3>
+                  <p className="text-gray-400 text-sm mb-6">
+                    Ready to fix issue <strong>#{selectedIssue?.number}</strong>. You can optionally provide your own AI API key to prioritize your quota.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-300">Custom API Key (Optional)</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Code className="h-4 w-4 text-gray-500" />
+                        </div>
+                        <input
+                          type="password"
+                          name="custom-api-key"
+                          autoComplete="new-password"
+                          data-lpignore="true"
+                          data-form-type="other"
+                          value={customApiKey}
+                          onChange={(e) => setCustomApiKey(e.target.value)}
+                          placeholder="sk-..., csk-..., or together_..."
+                          className="w-full pl-10 pr-4 py-3 bg-black/50 border border-gray-700 rounded-xl text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-all font-mono text-sm"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Supports OpenAI, Cerebras, OpenRouter, and Together AI (Auto-Detected).
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        onClick={() => setIsDialogOpen(false)}
+                        className="flex-1 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmFix}
+                        className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/20 transition-all"
+                      >
+                        Start Fix 🚀
+                      </button>
+                    </div>
                   </div>
-                </button>
+                </div>
               </div>
             )}
           </div>

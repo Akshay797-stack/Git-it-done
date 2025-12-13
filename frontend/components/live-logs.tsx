@@ -56,28 +56,28 @@ export function LiveLogs({ jobId, onBack }: LiveLogsProps) {
                         // Update progress based on workflow stages
                         const msg = data.message.toLowerCase();
                         if (msg.includes('starting') || msg.includes('fetching issue')) {
-                            setProgress(10);
+                            setProgress(prev => Math.max(prev, 10));
                             setCurrentStep("Fetching issue details");
                         } else if (msg.includes('cloning') || msg.includes('repository')) {
-                            setProgress(20);
+                            setProgress(prev => Math.max(prev, 20));
                             setCurrentStep("Cloning repository");
                         } else if (msg.includes('creating branch')) {
-                            setProgress(30);
+                            setProgress(prev => Math.max(prev, 30));
                             setCurrentStep("Creating fix branch");
                         } else if (msg.includes('running') && msg.includes('agent')) {
-                            setProgress(40);
+                            setProgress(prev => Math.max(prev, 40));
                             setCurrentStep("Analyzing code with AI");
                         } else if (msg.includes('calling ai') || msg.includes('attempt')) {
-                            setProgress(50);
+                            setProgress(prev => Math.max(prev, 50));
                             setCurrentStep("Generating fix");
                         } else if (msg.includes('validated') || msg.includes('patch')) {
-                            setProgress(70);
+                            setProgress(prev => Math.max(prev, 70));
                             setCurrentStep("Applying changes");
                         } else if (msg.includes('applying') || msg.includes('commit')) {
-                            setProgress(80);
+                            setProgress(prev => Math.max(prev, 80));
                             setCurrentStep("Committing changes");
                         } else if (msg.includes('pushing') || msg.includes('creating pr')) {
-                            setProgress(90);
+                            setProgress(prev => Math.max(prev, 90));
                             setCurrentStep("Creating pull request");
                         } else if (msg.includes('pr created') || msg.includes('done')) {
                             setProgress(100);

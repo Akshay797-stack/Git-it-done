@@ -62,8 +62,8 @@ git push origin main
 2. **Select your project** (or create new one from GitHub)
 3. **Add Environment Variables** (Variables tab):
    ```
-   OPENAI_API_KEY=csk-6cyxt48f4eyw8xjw59rhnd3tj9xw465e6rvk8kxv8rwyfrj6
-   GITHUB_TOKEN=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
+   OPENAI_API_KEY=
+   GITHUB_TOKEN=
    PORT=8080
    ```
 

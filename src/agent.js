@@ -4,7 +4,7 @@ const OpenAI = require('openai');
 const { execSync } = require('child_process');
 require('dotenv').config();
 
-const apiKey = process.env.OPENAI_API_KEY;
+const apiKey = process.env.API_KEY || process.env.OPENAI_API_KEY;
 const isOpenRouter = apiKey && apiKey.startsWith('sk-or-');
 const isCerebras = apiKey && apiKey.startsWith('csk-');
 const isTogether = apiKey && (apiKey.startsWith('together_') || (!apiKey.startsWith('sk-') && !apiKey.startsWith('csk-')));

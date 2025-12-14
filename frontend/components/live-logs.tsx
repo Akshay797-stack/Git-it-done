@@ -141,6 +141,8 @@ export function LiveLogs({ jobId, directStreamConfig, onBack }: LiveLogsProps) {
 
         // Mode 2: Legacy Kestra
         if (jobId && !directStreamConfig) {
+            if (!jobId) return;
+
             const eventSource = new EventSource(`/api/fix/${jobId}/logs`);
 
             eventSource.onmessage = (event) => {

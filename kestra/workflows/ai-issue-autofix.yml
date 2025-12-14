@@ -13,10 +13,10 @@ inputs:
     required: true
     description: Repository URL (e.g., https://github.com/owner/repo.git)
   
-  - id: openai_api_key
+  - id: api_key
     type: STRING
     required: true
-    description: OpenAI/OpenRouter/Cerebras API Key
+    description: AI API Key (OpenAI/Cerebras/OpenRouter)
   
   - id: github_token
     type: STRING
@@ -50,7 +50,7 @@ tasks:
     description: Execute AI autofix script
     runner: PROCESS
     env:
-      OPENAI_API_KEY: "{{ inputs.openai_api_key }}"
+      API_KEY: "{{ inputs.api_key }}"
       GITHUB_TOKEN: "{{ inputs.github_token }}"
       GIT_ASKPASS: /tmp/git-askpass.sh
       GIT_TERMINAL_PROMPT: "0"

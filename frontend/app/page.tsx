@@ -334,25 +334,26 @@ export default function Home() {
                     </div>
                     {useLocalKestra && (
                       <div className="mt-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 text-xs">
-                        ⚠️ <strong>Note:</strong> This option only works if you are running the frontend locally (`npm run dev`) alongside Docker.
-                        If deployed to Vercel, it cannot reach your localhost.
+                        ⚠️ <strong>Note:</strong> This checks for Kestra at <code>http://localhost:8080</code>.
+                        If you are not running Docker, please uncheck this to use the built-in Node.js agent.
                       </div>
                     )}
 
-                    <div className="flex gap-3 pt-4">
-                      <button
-                        onClick={() => setIsDialogOpen(false)}
-                        className="flex-1 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={confirmFix}
-                        className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/20 transition-all"
-                      >
-                        Start Fix 🚀
-                      </button>
-                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={() => setIsDialogOpen(false)}
+                      className="flex-1 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmFix}
+                      className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/20 transition-all"
+                    >
+                      Start Fix 🚀
+                    </button>
                   </div>
                 </div>
               </div>

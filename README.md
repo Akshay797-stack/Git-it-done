@@ -151,9 +151,9 @@ Follow these steps to get the project running locally in under 10 minutes.
 ### **Prerequisites**
 
 - **Node.js 18+** & **npm**
-- **Docker** & **Docker Compose** (must be running)
 - **GitHub Account**
 - **AI API Key** (OpenAI, OpenRouter, Cerebras, or Together AI)
+- **Docker** & **Docker Compose** (Required only for Mode B: Full Power)
 
 ---
 
@@ -177,7 +177,7 @@ Create a `.env` file in the root directory. The system **automatically detects**
 # - OpenRouter (sk-or-...) -> gemini-2.0-flash
 # - Cerebras (csk-...) -> llama3.1-8b
 # - Together AI (together_...) -> llama-3.1-70b
-OPENAI_API_KEY=your_api_key_here
+API_KEY=your_api_key_here
 ```
 
 #### **Frontend `.env.local`**
@@ -191,13 +191,13 @@ GITHUB_CLIENT_SECRET=your_github_client_secret
 NEXTAUTH_SECRET=any_random_string_xyz
 NEXTAUTH_URL=http://localhost:3000
 
-# Kestra Integration
+# Kestra Integration (Optional - for Mode B)
 KESTRA_URL=http://localhost:8080
 KESTRA_EMAIL=admin@example.com
 KESTRA_PASSWORD=password123
 
 # AI Agent Configuration
-OPENAI_API_KEY=your_openai_api_key_here
+API_KEY=your_api_key_here
 ```
 
 ---
@@ -216,28 +216,37 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ---
 
-### **4. Start Kestra Orchestrator**
+### **4. Choose Your Running Mode**
 
-Launch the Kestra server and database using Docker Compose:
+You can run this project in two modes: **Lightweight (Node.js)** or **Full Power (Docker + Kestra)**.
 
-```bash
-docker-compose -f docker-compose.kestra.yml up -d
-```
+#### **Option A: Lightweight (Fastest Setup)**
+*Best for quickly testing the UI and AI logic without installing Docker.*
 
-Wait ~30 seconds for the containers to initialize.
+1. **Skip to Step 5 (Run the Frontend).**
+2. In the UI, ensure "Use Local Kestra" is **unchecked**.
 
-**Configure Kestra:**
-1. Open [http://localhost:8080](http://localhost:8080).
-2. Create an Admin account when prompted (use checking credentials from your `.env.local`).
-3. Navigate to **Flows** -> **Create**.
-4. Copy the entire content of `kestra/workflows/ai-issue-autofix.yml`.
-5. Paste it into the editor and click **Save**.
+#### **Option B: Full Power (Docker + Kestra)**
+*Best for production simulation, reproducible environments, and complex workflows.*
+
+1. **Start Infrastructure**:
+   ```bash
+   docker-compose -f docker-compose.kestra.yml up -d
+   ```
+   Wait ~30 seconds for the containers to initialize.
+
+2. **Configure Kestra**:
+   - Open [http://localhost:8080](http://localhost:8080).
+   - Create an Admin account (use credential from your `.env.local`).
+   - Navigate to **Flows** -> **Create**.
+   - Copy the entire content of `kestra/workflows/ai-issue-autofix.yml`.
+   - Paste it into the editor and click **Save**.
 
 ---
 
 ### **5. Run the Frontend**
 
-Naviage to the frontend directory and start the dev server:
+Navigate to the frontend directory and start the dev server:
 
 ```bash
 cd frontend
@@ -287,6 +296,15 @@ A -- SSE Stream --> B
 - **Agent**: Node.js scripts (`src/orchestrator.js`) that handle git operations and AI logic.
 
 ---
+
+
+## 🛠 **Tech Stack**
+
+- **Frontend**: Next.js 16 (App Router), Tailwind CSS, Framer Motion, Lucide Icons
+- **Backend Integrated**: Next.js API Routes, NextAuth.js
+- **Orchestration**: Kestra (Docker)
+- **AI**: OpenAI SDK (compatible with OpenRouter, Cerebras, Together AI)
+- **Code Review**: CodeRabbit Integration
 
 ## 🔧 **Troubleshooting**
 

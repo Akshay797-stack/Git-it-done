@@ -213,7 +213,7 @@ async function main() {
             // Escape quotes in issue body
             const escapedBody = issue.body.replace(/"/g, '\\"').replace(/`/g, '\\`');
 
-            runCmd(`docker run --rm -v ${mountArg} -e OPENAI_API_KEY=${process.env.OPENAI_API_KEY} cline-agent --issue-body "${escapedBody}" --repo-path ${repoPathArg}`);
+            runCmd(`docker run --rm -v ${mountArg} -e API_KEY=${process.env.OPENAI_API_KEY || process.env.API_KEY} cline-agent --issue-body "${escapedBody}" --repo-path ${repoPathArg}`);
 
         } catch (e) {
             console.error('❌ Docker execution failed:', e.message);

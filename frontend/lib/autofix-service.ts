@@ -129,12 +129,19 @@ export async function runAutofix(opts: RunOptions) {
             }
 
             log(`$ ${cmd}`, 'info');
+            const startTime = Date.now();
             try {
-                execSync(cmd, { cwd, stdio: 'pipe' }); // Pipe mainly to avoid cluttering server logs, but we could capture it
+                const stdout = execSync(cmd, { cwd, stdio: 'pipe', encoding: 'utf-8' });
+                const duration = Date.now() - startTime;
+                log(`Command completed in ${duration}ms`, 'info');
+                if (stdout && stdout.trim()) {
+                    log(`Output: ${stdout.trim().substring(0, 200)}${stdout.length > 200 ? '...' : ''}`, 'info');
+                }
             } catch (e: any) {
+                const duration = Date.now() - startTime;
                 const stderr = e.stderr ? e.stderr.toString() : e.message;
                 if (!ignoreError) {
-                    throw new Error(`Command failed: ${cmd}\nError: ${stderr}`);
+                    throw new Error(`Command failed after ${duration}ms: ${cmd}\nError: ${stderr}`);
                 }
                 log(`Command warning: ${stderr}`, 'warning');
             }
@@ -175,7 +182,7 @@ export async function runAutofix(opts: RunOptions) {
             .replace('{{ISSUE_BODY}}', issueData.body)
             .replace('{{CODEBASE}}', codebaseContext);
 
-        const aiResponse = await callAI(prompt, openaiKey);
+        const aiResponse = await callAI(prompt, openaiKey, (msg) => log(msg, 'info'));
 
         if (!aiResponse || !aiResponse.files || aiResponse.files.length === 0) {
             throw new Error("AI returned no files to change.");
@@ -185,19 +192,11 @@ export async function runAutofix(opts: RunOptions) {
 
         // 6. Apply Changes
         log('🔧 Applying changes...', 'info');
-        const diffs: string[] = [];
 
         for (const file of aiResponse.files) {
             const filePath = path.join(workspaceDir, file.path);
             const dir = path.dirname(filePath);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-            const isNew = !fs.existsSync(filePath);
-
-            // We write the file directly instead of creating a diff first, 
-            // because we want the state to be correct for tests immediately.
-            // But to generate a clean diff for the log/user, we could do a git diff.
-            // Simplified: Write file, then git add.
 
             fs.writeFileSync(filePath, file.content);
             log(`Updated ${file.path}`, 'info');
@@ -216,8 +215,6 @@ export async function runAutofix(opts: RunOptions) {
                 log('✅ Tests passed!', 'success');
             } catch (e: any) {
                 log('⚠️ Tests failed or dependencies failed to install. Proceeding anyway (MVP mode).', 'warning');
-                // runCmd('npm test', workspaceDir, true); // Log output but don't fail?
-                // For MVP, we warn but push. In full version, we'd retry.
             }
         }
 
@@ -255,7 +252,6 @@ export async function runAutofix(opts: RunOptions) {
 // --- Helpers ---
 
 async function fetchIssue(url: string, token: string) {
-    // url: https://github.com/owner/repo/issues/1
     const parts = url.split('github.com/')[1].split('/');
     const owner = parts[0];
     const repo = parts[1];
@@ -311,10 +307,13 @@ function readCodebase(dir: string, fileList: { path: string, content: string }[]
     return fileList;
 }
 
-async function callAI(prompt: string, apiKey: string) {
-    const isOpenRouter = apiKey.startsWith('sk-or-');
-    const isCerebras = apiKey.startsWith('csk-');
-    const isTogether = apiKey.startsWith('together_');
+async function callAI(prompt: string, apiKey: string, onLog?: (msg: string) => void) {
+    const finalKey = apiKey || process.env.API_KEY;
+    if (!finalKey) throw new Error("No API Key provided (client or server API_KEY).");
+
+    const isOpenRouter = finalKey.startsWith('sk-or-');
+    const isCerebras = finalKey.startsWith('csk-');
+    const isTogether = finalKey.startsWith('together_');
 
     let baseURL = undefined;
     if (isOpenRouter) baseURL = 'https://openrouter.ai/api/v1';
@@ -322,13 +321,16 @@ async function callAI(prompt: string, apiKey: string) {
     else if (isTogether) baseURL = 'https://api.together.xyz/v1';
 
     const openai = new OpenAI({
-        apiKey,
+        apiKey: finalKey,
         baseURL
     });
 
     const modelName = isOpenRouter ? 'google/gemini-2.0-flash-exp:free' :
         isCerebras ? 'llama3.1-8b' :
             isTogether ? 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo' : 'gpt-4o';
+
+    if (onLog) onLog(`Sending request to ${baseURL || 'OpenAI'} with model ${modelName}...`);
+    const startTime = Date.now();
 
     const completion = await openai.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
@@ -337,6 +339,8 @@ async function callAI(prompt: string, apiKey: string) {
         max_tokens: 4000,
         temperature: 0.2,
     });
+
+    if (onLog) onLog(`AI response received in ${Date.now() - startTime}ms.`);
 
     const content = completion.choices[0].message.content;
     if (!content) return null;

@@ -43,15 +43,3 @@ workspace/
 *.temp
 patch.diff
 temp_issue_body.txt
-
-# Docker volumes
-postgres-data/
-kestra-data/
-DEPLOY_RAILWAY.md
-DEPLOY_BACKEND.md
-DEPLOY_TO_VERCEL.md
-RAILWAY_FIX_SUMMARY.md
-RAILWAY_VERIFICATION.md
-KESTRA_CONFIG_FIX.md
-H2_POSTGRES_FIX.md
-FINAL_FIX_MEMORY_MODE.md

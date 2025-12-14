@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         formData.append('repo_url', repoUrl);
         formData.append('github_token', githubToken);
         // Use client provided key first, fall back to server-side env var
-        formData.append('openai_api_key', openaiKey || process.env.OPENAI_API_KEY || '');
+        formData.append('api_key', openaiKey || process.env.API_KEY || '');
         formData.append('apply_fix', 'true');
         formData.append('create_pr', 'true');
 
